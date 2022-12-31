@@ -1,27 +1,29 @@
 package com.example.MyBookShopApp.security;
 
+import com.example.MyBookShopApp.security.jwt.jwtblacklist.JWTBlacklist;
+import com.example.MyBookShopApp.security.jwt.jwtblacklist.JWTBlacklistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 @Controller
 public class AuthUserController {
 
     private final BookstoreUserRegister userRegister;
+    private final JWTBlacklistRepository jwtBlacklistRepository;
 
     @Autowired
-    public AuthUserController(BookstoreUserRegister userRegister) {
+    public AuthUserController(BookstoreUserRegister userRegister, JWTBlacklistRepository jwtBlacklistRepository) {
         this.userRegister = userRegister;
+        this.jwtBlacklistRepository = jwtBlacklistRepository;
     }
 
     @GetMapping("/signin")
@@ -77,6 +79,18 @@ public class AuthUserController {
     public String handleProfile(Model model){
         model.addAttribute("curUsr",userRegister.getCurrentUser());
         return "profile";
+    }
+
+    @PutMapping(value = "/destroy")
+    public JWTBlacklist logout(@RequestBody Map<String,String> json, HttpSession httpSession) {
+
+        String token = json.get("token");
+
+        JWTBlacklist jwtBlacklist = new JWTBlacklist();
+        jwtBlacklist.setToken(token);
+        jwtBlacklistRepository.save(jwtBlacklist);
+
+        return jwtBlacklistRepository.save(jwtBlacklist);
     }
 
 //    @GetMapping("/logout")
