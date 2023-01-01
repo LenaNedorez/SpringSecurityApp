@@ -8,6 +8,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.security.sasl.AuthenticationException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -50,7 +51,11 @@ public class JWTRequestFilter extends OncePerRequestFilter {
 
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    } else {
+                        throw new ServletException("Invalid token.");
                     }
+                } else {
+                    throw new AuthenticationException("Authentication exception occurred");
                 }
             }
         }
